@@ -4,14 +4,17 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const passport = require('passport');
 
-
-const users = require('./routs/api/users');
+const users = require('./routs/api/admin_user');
+const qr = require('./routs/api/qr');
 
 const app = express();
 
 // Body parser middleware
 app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json({useNewUrlParser: true}));
+app.use(bodyParser.json());
+
+// Passport middleware
+app.use(passport.initialize());
 
 
 // DB Config
@@ -19,14 +22,16 @@ const db = require('./config/keys').mongoURI;
 
 // Connect to MongoDB
 mongoose
-    .connect(db)
+    .connect(db, {useNewUrlParser: true})
     .then(() => console.log('Mongo DB Successfully Connected'))
     .catch(err => console.log(err));
 
-app.get('/', (req, res) => res.send('Hello'));
+// Passport Config
+require('./config/passport')(passport);
 
 // Use Routs
-app.use('/api/users', users);
+app.use('/api/admin', users);
+app.use('/api/qr', qr);
 
 port = 5000;
 
