@@ -6,8 +6,25 @@ module.exports = function validateRegisterInput(data) {
     let errors = {};
 
     if (!Validator.isLength(data.text, {min: 2, max: undefined})) {
-        errors.name = 'text must be between 2 and 30 characters';
+        errors.text = 'text must be between 2 and 30 characters';
     }
+
+    if (!Validator.isInt(data.amount, {min: 1, max: 100})) {
+        errors.amount = 'The input amount must be between 1 and 100';
+    }
+
+    if (!Validator.isInt(data.max_use, {min: 1, max: 100})) {
+        errors.max_use = 'The input amount must be between 1 and 100';
+    }
+
+    if (!Validator.isInt(data.expire_date)) {
+        errors.expire_date = 'Date must be of time timestamp';
+    }
+
+    if (Validator.isBefore(new Date(data.expire_date).toString())) {
+        errors.expire_date = 'The date must be after now';
+    }
+
 
     return {
         errors,

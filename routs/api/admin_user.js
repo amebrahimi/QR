@@ -3,7 +3,6 @@ const router = express.Router();
 const User = require('../../models/AdminUser');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const passport = require('passport');
 
 // Load Input Validation
 const validateRegisterInput = require('../../validation/register');
