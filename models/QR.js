@@ -31,7 +31,13 @@ const QrSchema = new Schema({
         type: Number,
         default: 0
     },
-    generated_off_codes: [String]
+    generated_off_codes: [{
+        code: String,
+        is_used: {
+            type: Boolean,
+            default: false
+        }
+    }]
 
 });
 

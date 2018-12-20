@@ -26,11 +26,9 @@ router.post('/generate',
             return res.status(400).json(errors);
         }
 
-
         generateQrCode(amount, text, expire_date, max_use)
             .then(res.json({success: true}))
             .catch(err => console.log(err))
-
     });
 
 // @Route   GET api/qr?code=
@@ -60,7 +58,9 @@ router.get('/', (req, res) => {
                 const scannedTimes = qr.scanned_times + 1;
                 const remainingUse = qr.max_use - scannedTimes < 0 ? 0 : qr.max_use - scannedTimes;
 
-                const list = [...qr.generated_off_codes, m];
+                const list = [...qr.generated_off_codes, {
+                    generated_off_codes: m,
+                }];
 
                 const updateFields = {
                     generated_off_codes: [...list],
