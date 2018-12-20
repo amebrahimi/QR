@@ -59,7 +59,6 @@ router.post('/login', (req, res) => {
     const user = req.body.user;
     const password = req.body.password;
 
-    console.log("We are successfully getting here", user);
 
     // Find user by email
     User.findOne({name: user})
