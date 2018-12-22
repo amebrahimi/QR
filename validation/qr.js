@@ -5,6 +5,13 @@ module.exports = function validateRegisterInput(data) {
 
     let errors = {};
 
+
+    data.text = !isEmpty(data.text) ? data.text : '';
+    data.amount = !isEmpty(data.amount) ? data.amount : '';
+    data.max_use = !isEmpty(data.max_use) ? data.max_use : '';
+    data.expire_date = !isEmpty(data.expire_date) ? data.expire_date : '';
+
+
     if (!Validator.isLength(data.text, {min: 2, max: undefined})) {
         errors.text = 'text must be between 2 and 30 characters';
     }
