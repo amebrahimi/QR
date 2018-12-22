@@ -40,7 +40,8 @@ class Dashboard extends Component {
         return (
             <div>
                 {this.state.showAlert && (
-                    <Alert bsStyle="success" onDismiss={this.handleDismiss}><strong>QRs Successfully generated</strong></Alert>)}
+                    <Alert bsStyle="success" onDismiss={this.handleDismiss}><strong>QR(s) Successfully
+                        generated</strong></Alert>)}
                 <div className="mt-5">
                     {qrContent}
                 </div>
