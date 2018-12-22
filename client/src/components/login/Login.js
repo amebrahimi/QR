@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import classnames from 'classnames';
-import {Container, Form, FormGroup, Input, InputGroup, Row} from 'reactstrap';
+import {Container, Form, FormGroup, Input, Row} from 'reactstrap';
 import {connect} from "react-redux";
 import {loginUser} from "../../actions/authActions";
 import PropTypes from 'prop-types';
@@ -34,7 +34,6 @@ class Login extends Component {
 
     componentWillReceiveProps(nextProps) {
 
-        console.table(nextProps);
         if (nextProps.auth.isAuthenticated) {
             this.props.history.push('/dashboard');
         }
@@ -51,7 +50,7 @@ class Login extends Component {
         const {errors} = this.state;
         return (
             <div>
-                <Container>
+                <Container className="mt-5">
                     <Row>
                         <div className="col-md-8 m-auto">
                             <h1 className="display-4 text-center">Log In</h1>
@@ -92,8 +91,7 @@ class Login extends Component {
                     </Row>
                 </Container>
             </div>
-        )
-            ;
+        );
     }
 }
 
