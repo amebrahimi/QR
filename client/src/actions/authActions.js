@@ -15,10 +15,11 @@ export const loginUser = userData => dispatch => {
             const decode = jwt_decode(token);
 
             dispatch(setCurrentUser(decode));
-        }).catch(err => dispatch({
-        type: GET_ERRORS,
-        payload: err.response.data
-    }))
+        }).catch(
+        err => dispatch({
+            type: GET_ERRORS,
+            payload: err.response.data
+        }));
 };
 
 export const setCurrentUser = decode => {
