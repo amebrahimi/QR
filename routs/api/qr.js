@@ -31,10 +31,10 @@ router.post('/generate',
             .catch(err => console.log(err))
     });
 
-// @Route   GET api/qr?code=
+// @Route   GET api/qr/generate_off?code=
 // @desc    Generates the off code based on the qrcodes hash
 // @access  public
-router.get('/', (req, res) => {
+router.get('/generate_off', (req, res) => {
 
 
     QR.findOne({generated_hash: req.query.code})
@@ -73,6 +73,24 @@ router.get('/', (req, res) => {
                     .catch(err => console.log(err))
             }
         }).catch(err => console.log(err))
+});
+
+// @Route   GET api/qr
+// @desc    Get the list of types that are already created
+// @access  Private
+router.get('/', passport.authenticate('jwt', {session: false}, null), (req, res) => {
+
+    QR.aggregate([
+        {
+            $group: {
+                _id: '$type',
+            }
+        }
+    ]).sort({'_id': 1}).then(qr => {
+
+        res.json({types: qr});
+
+    }).catch(err => res.json(err));
 });
 
 String.random = function (length) {
