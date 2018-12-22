@@ -36,7 +36,6 @@ router.post('/generate',
 // @access  public
 router.get('/generate_off', (req, res) => {
 
-
     QR.findOne({generated_hash: req.query.code})
         .then(qr => {
             if (!qr) {
@@ -58,9 +57,12 @@ router.get('/generate_off', (req, res) => {
                 const scannedTimes = qr.scanned_times + 1;
                 const remainingUse = qr.max_use - scannedTimes < 0 ? 0 : qr.max_use - scannedTimes;
 
-                const list = [...qr.generated_off_codes, {
-                    generated_off_codes: m,
-                }];
+                console.log(...qr.generated_off_codes);
+
+                const list = [
+                    ...qr.generated_off_codes, {
+                        code: m,
+                    }];
 
                 const updateFields = {
                     generated_off_codes: [...list],
@@ -69,7 +71,12 @@ router.get('/generate_off', (req, res) => {
                 };
 
                 QR.findOneAndUpdate({generated_hash: req.query.code}, updateFields, {new: true})
-                    .then(newQr => res.json({newQr}))
+                    .then(newQr => res.json({
+                        id: newQr._id,
+                        type: newQr.type,
+                        codes: newQr.generated_off_codes,
+                        code: m
+                    }))
                     .catch(err => console.log(err))
             }
         }).catch(err => console.log(err))
@@ -105,7 +112,7 @@ String.random = function (length) {
 
 const generateQrCode = async (amount, type, expireDate, maxUse) => {
 
-    const url = 'localhost:5000';
+    const url = 'localhost:3000';
     const salt = await bcrypt.genSalt(10);
 
     if (!fs.existsSync(path.join(__dirname, `../../generated_qrs/${type}`))) {
@@ -113,7 +120,7 @@ const generateQrCode = async (amount, type, expireDate, maxUse) => {
     }
     for (let i = 0; i < amount; i++) {
         const hashedQr = await bcrypt.hash(`${type},${Date.now()}`, salt);
-        qr.toFile(path.join(__dirname, `../../generated_qrs/${type}/${type}-${Date.now()}${i}.png`), `${url}/api/qr?code=${hashedQr}`)
+        qr.toFile(path.join(__dirname, `../../generated_qrs/${type}/${type}-${Date.now()}${i}.png`), `${url}/scan?code=${hashedQr}`)
             .then(a => {
                 const qr = new QR({
                     generated_hash: hashedQr,

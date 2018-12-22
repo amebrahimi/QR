@@ -5,3 +5,4 @@ export const GET_QR_TYPES = 'GET_QR_TYPES';
 export const QR_LOADING = 'QR_LOADING';
 export const QR_GENERATED = 'QR_GENERATED';
 export const QR_LOADING_FALSE = 'QR_LOADING_FALSE';
+export const QR_OFF_CODE_GENERATED = 'QR_OFF_CODE_GENERATED';

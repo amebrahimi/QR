@@ -12,6 +12,8 @@ import {logoutUser, setCurrentUser} from "./actions/authActions";
 import setAuthToken from "./utils/setAuthToken";
 import PrivateRoute from "./components/common/PrivateRoute";
 import Dashboard from "./components/dashboard/Dashboard";
+import Statistics from "./components/dashboard/Statistics";
+import Scan from "./components/scan/Scan";
 
 
 if (localStorage.jwtToken) {
@@ -42,9 +44,10 @@ class App extends Component {
                     <div className="App">
                         <AppNavbar/>
                         <Route exact path="/" component={Login}/>
-
+                        <Route exact path="/scan" component={Scan}/>
                         <Switch>
                             <PrivateRoute exact path="/dashboard" component={Dashboard}/>
+                            <PrivateRoute exact path="/dashboard/statistics" component={Statistics}/>
                         </Switch>
                     </div>
                 </Router>

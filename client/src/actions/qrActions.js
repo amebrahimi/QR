@@ -1,5 +1,13 @@
 import axios from 'axios';
-import {CLEAR_ERRORS, GET_ERRORS, GET_QR_TYPES, QR_GENERATED, QR_LOADING, QR_LOADING_FALSE} from "./types";
+import {
+    CLEAR_ERRORS,
+    GET_ERRORS,
+    GET_QR_TYPES,
+    QR_GENERATED,
+    QR_LOADING,
+    QR_LOADING_FALSE,
+    QR_OFF_CODE_GENERATED
+} from "./types";
 
 export const getQrTypes = () => dispatch => {
     dispatch(setPostLoading());
@@ -35,6 +43,26 @@ export const generateQr = postData => dispatch => {
                 })
             }
         )
+};
+
+export const generateOffCode = code => dispatch => {
+
+    dispatch(setPostLoading());
+    dispatch(setPostLoading());
+    axios.get(`/api/qr/generate_off?code=${code}`)
+        .then(res => dispatch({
+            type: QR_OFF_CODE_GENERATED,
+            payload: res.data
+        }))
+        .catch(err => {
+            dispatch(setQrLoadingFalse());
+
+            dispatch({
+                type: GET_ERRORS,
+                payload: err.response.data
+            })
+        })
+
 };
 
 

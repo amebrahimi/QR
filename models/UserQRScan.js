@@ -15,6 +15,10 @@ const UserQrScanSchema = new Schema({
     },
     qr: {
         type: Schema.Types.ObjectId,
-        ref: 'qrs'
+        ref: 'qrs',
+        required: true
     }
 });
+
+
+module.exports = UserQrScan = mongoose.model('codeUsers', UserQrScanSchema);
