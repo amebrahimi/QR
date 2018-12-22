@@ -88,3 +88,5 @@ typings/
 .idea
 
 .generated_qrs/*
+
+package-lock.json
