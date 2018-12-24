@@ -19,7 +19,7 @@ async function extracted(user, dataForUpdate, options, otherUser, res) {
         .catch(err => res.status(500).json(err));
 }
 
-// @Route   Post api/use
+// @Route   Post api/user
 // @desc    add user to database
 // @access  Public
 router.post('/', (req, res) => {
