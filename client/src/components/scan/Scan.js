@@ -44,7 +44,9 @@ class Scan extends Component {
         const {loading} = this.props.qrs;
 
         if (loading) {
+
             content = <Spinner/>
+
         } else {
 
             if (expire || max_use) {
@@ -109,13 +111,19 @@ class Scan extends Component {
                                     />
                                 </div>
 
-                                <Input type="submit" value="Send" className="btn btn-info btn-block"/>
+                                <div className="form-group">
+                                    <Input type="submit" value="Send" className="btn btn-info btn-block"/>
+                                </div>
                             </form>
                         </div>
+
                     </div>
                 )
             }
+
         }
+
+
         return (
             <div>
                 {content}
