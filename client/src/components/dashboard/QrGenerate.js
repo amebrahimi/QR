@@ -39,7 +39,7 @@ class QrGenerate extends Component {
                 text: this.state.text.toLowerCase(),
                 amount: this.state.amount,
                 expire_date: '15459552000000',
-                max_use: '20'
+                max_use: '1'
             };
 
             this.props.generateQr(data)
