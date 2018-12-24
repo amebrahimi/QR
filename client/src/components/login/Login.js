@@ -18,9 +18,8 @@ class Login extends Component {
 
         const {user, password} = this.state;
 
-        const userToSend = user.toLowerCase();
         const loginData = {
-            userToSend,
+            user,
             password
         };
 
