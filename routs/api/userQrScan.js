@@ -33,7 +33,7 @@ router.post('/', (req, res) => {
 
 
     if (isEmpty(phoneToCheck) && isEmpty(emailToCheck)) {
-        errors.validation = 'At least one of the phone/email field(s) must be filled';
+        errors.validation = 'At least one of the phone/email fields must be filled';
         return res.status(400).json(errors);
     } else if (!isEmpty(phoneToCheck) && !isEmpty(emailToCheck)) {
 
