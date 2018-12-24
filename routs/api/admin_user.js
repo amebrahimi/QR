@@ -56,7 +56,7 @@ router.post('/register', (req, res) => {
 // @access Public
 router.post('/login', (req, res) => {
 
-    const user = req.body.user;
+    const user = req.body.user.toLowerCase();
     const password = req.body.password;
 
 
