@@ -87,6 +87,7 @@ typings/
 
 .idea
 
-.generated_qrs/*
+# Generated qr folder
+generated_qrs
 
 package-lock.json
