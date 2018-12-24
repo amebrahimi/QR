@@ -128,7 +128,7 @@ const generateQrCode = async (amount, type, expireDate, maxUse) => {
                 });
 
                 qr.save()
-                    .then(qr => console.log(qr))
+                    .then(qr => console.log())
                     .catch(err => console.log(err))
             })
     }
