@@ -11,6 +11,10 @@ const QrSchema = new Schema({
         type: String,
         required: true
     },
+    point: {
+        type: Number,
+        default: 1
+    },
     created_date: {
         type: Date,
         default: Date.now()
@@ -32,7 +36,10 @@ const QrSchema = new Schema({
         default: 0
     },
     generated_off_codes: [{
-        code: String,
+        code: {
+            type: String,
+            unique: true
+        },
         is_used: {
             type: Boolean,
             default: false

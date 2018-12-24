@@ -41,8 +41,7 @@ router.get('/generate_off', (req, res) => {
             if (!qr) {
                 errors.code = 'Code not found';
                 res.status(400).json(errors)
-            }
-            else {
+            } else {
 
                 const {errors, isValid} = scanValidator(qr);
 
@@ -57,7 +56,6 @@ router.get('/generate_off', (req, res) => {
                 const scannedTimes = qr.scanned_times + 1;
                 const remainingUse = qr.max_use - scannedTimes < 0 ? 0 : qr.max_use - scannedTimes;
 
-                console.log(...qr.generated_off_codes);
 
                 const list = [
                     ...qr.generated_off_codes, {
@@ -112,7 +110,7 @@ String.random = function (length) {
 
 const generateQrCode = async (amount, type, expireDate, maxUse) => {
 
-    const url = 'localhost:3000';
+    const url = 'http://192.168.1.9:3000';
     const salt = await bcrypt.genSalt(10);
 
     if (!fs.existsSync(path.join(__dirname, `../../generated_qrs/${type}`))) {
