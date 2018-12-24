@@ -46,8 +46,6 @@ export const generateQr = postData => dispatch => {
 };
 
 export const generateOffCode = code => dispatch => {
-
-    dispatch(setPostLoading());
     dispatch(setPostLoading());
     axios.get(`/api/qr/generate_off?code=${code}`)
         .then(res => dispatch({
@@ -56,7 +54,6 @@ export const generateOffCode = code => dispatch => {
         }))
         .catch(err => {
             dispatch(setQrLoadingFalse());
-
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data

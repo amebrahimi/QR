@@ -32,7 +32,8 @@ export default function (state = initialState, action) {
         case QR_OFF_CODE_GENERATED:
             return {
                 ...state,
-                qr_data: action.payload
+                qr_data: action.payload,
+                loading: false
             };
 
         case QR_GENERATED:
