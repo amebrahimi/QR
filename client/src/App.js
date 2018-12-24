@@ -14,6 +14,7 @@ import PrivateRoute from "./components/common/PrivateRoute";
 import Dashboard from "./components/dashboard/Dashboard";
 import Statistics from "./components/dashboard/Statistics";
 import Scan from "./components/scan/Scan";
+import Success from "./components/scan/Success";
 
 
 if (localStorage.jwtToken) {
@@ -45,6 +46,7 @@ class App extends Component {
                         <AppNavbar/>
                         <Route exact path="/" component={Login}/>
                         <Route exact path="/scan" component={Scan}/>
+                        <Route exact path="/submit" component={Success}/>
                         <Switch>
                             <PrivateRoute exact path="/dashboard" component={Dashboard}/>
                             <PrivateRoute exact path="/dashboard/statistics" component={Statistics}/>

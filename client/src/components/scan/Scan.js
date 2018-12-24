@@ -7,6 +7,8 @@ import {Alert} from "react-bootstrap";
 import {Input} from "reactstrap";
 import classnames from 'classnames';
 import Spinner from "../common/Spinner";
+import isEmpty from "../../validation/is-empty";
+import {submitQrUser} from "../../actions/userQrActions";
 
 class Scan extends Component {
 
@@ -15,6 +17,7 @@ class Scan extends Component {
         phone: '',
         email: '',
         loading: false,
+        isButtonClicked: false,
         errors: {}
     };
 
@@ -34,6 +37,40 @@ class Scan extends Component {
     onSubmit = e => {
         e.preventDefault();
 
+        const {name, phone, email} = this.state;
+
+        if (isEmpty(phone) && isEmpty(email)) {
+
+            const errors = {
+                errors: {
+                    validation: 'At least one of the fields email/phone must be filled'
+                }
+            };
+
+            this.setState(errors);
+
+        } else {
+
+            this.setState({errors: {}});
+
+            this.setState({isButtonClicked: true});
+
+            const {id, code} = this.props.qrs.qr_data;
+
+            const phoneToSend = phone.toLowerCase();
+            const emailToSend = email.toLowerCase();
+
+            const data = {
+                name,
+                phone: phoneToSend,
+                email: emailToSend,
+                qr_id: id,
+                scanned_code: code
+            };
+
+            this.props.submitQrUser(data, this.props.history);
+
+        }
 
     };
 
@@ -88,31 +125,36 @@ class Scan extends Component {
                                 </div>
                                 <div className="form-group">
                                     <Input
-                                        type="text"
+                                        type="number"
                                         className={classnames('form-control form-control-lg mb-2', {
-                                            'is-invalid': this.state.errors.amount
+                                            'is-invalid': this.state.errors.validation
                                         })}
                                         name="phone"
                                         placeholder="Please Enter your phone number"
                                         value={this.state.phone}
                                         onChange={this.onChange}
                                     />
+                                    {this.state.errors.validation && (
+                                        <div className="invalid-feedback">{this.state.errors.validation}</div>)}
                                 </div>
                                 <div className="form-group">
                                     <Input
-                                        type="text"
+                                        type="email"
                                         className={classnames('form-control form-control-lg mb-2', {
-                                            'is-invalid': this.state.errors.amount
+                                            'is-invalid': this.state.errors.validation
                                         })}
                                         name="email"
                                         placeholder="please enter your email"
                                         value={this.state.email}
                                         onChange={this.onChange}
                                     />
+                                    {this.state.errors.validation && (
+                                        <div className="invalid-feedback">{this.state.errors.validation}</div>)}
                                 </div>
 
                                 <div className="form-group">
-                                    <Input type="submit" value="Send" className="btn btn-info btn-block"/>
+                                    <Input type="submit" value="Send" disabled={this.state.isButtonClicked}
+                                           className="btn btn-info btn-block"/>
                                 </div>
                             </form>
                         </div>
@@ -134,6 +176,7 @@ class Scan extends Component {
 
 Scan.propTypes = {
     generateOffCode: PropTypes.func.isRequired,
+    submitQrUser: PropTypes.func.isRequired
 };
 
 
@@ -142,4 +185,4 @@ const mapStateToProps = state => ({
     errors: state.errors
 });
 
-export default connect(mapStateToProps, {generateOffCode})(Scan);
+export default connect(mapStateToProps, {generateOffCode, submitQrUser})(Scan);
