@@ -1,13 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const path = require('path');
 const passport = require('passport');
-
 const users = require('./routs/api/admin_user');
 const qr = require('./routs/api/qr');
 const userQrScan = require('./routs/api/userQrScan');
-
 const app = express();
 
 // Body parser middleware
@@ -38,4 +35,3 @@ app.use('/api/user', userQrScan);
 port = 5000;
 
 app.listen(port, () => console.log(`Server Running on port ${port}`));
-

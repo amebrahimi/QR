@@ -5,6 +5,9 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
+const mail = require('../../mail/nodeMailer');
+const {mail_options, mail_config} = require('../../config/mail');
 
 
 const validator = require('../../validation/qr');
@@ -116,16 +119,32 @@ const generateQrCode = async (amount, type, expireDate, maxUse) => {
     if (!fs.existsSync(path.join(__dirname, `../../generated_qrs/${type}`))) {
         await fs.mkdirSync(path.join(__dirname, `../../generated_qrs/${type}`));
     }
+    const filePathArray = [];
     for (let i = 0; i < amount; i++) {
         const hashedQr = await bcrypt.hash(`${type},${Date.now()}`, salt);
-        qr.toFile(path.join(__dirname, `../../generated_qrs/${type}/${type}-${Date.now()}${i}.png`), `${url}/scan?code=${hashedQr}`)
+        const file_name = `${type}-${Date.now()}${i}.png`;
+        const sending_path = `../../generated_qrs/${type}/${file_name}`;
+        const file_path = path.join(__dirname, `${sending_path}`);
+        qr.toFile(file_path, `${url}/scan?code=${hashedQr}`)
             .then(a => {
+
+                filePathArray.push({
+                    filename: file_name,
+                    path: file_path
+                });
+
                 const qr = new QR({
                     generated_hash: hashedQr,
                     expire_date: expireDate,
                     max_use: maxUse,
                     type
                 });
+
+                if (i === amount - 1) {
+                    // Send the files as email
+                    mail_options.attachments = filePathArray;
+                    mail(mail_options, nodemailer, mail_config);
+                }
 
                 qr.save()
                     .then(qr => console.log())
