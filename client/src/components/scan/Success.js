@@ -8,9 +8,10 @@ class Success extends Component {
         let content;
 
         if (successful) {
-            content = <h1 className="display-4 text-center text-success">Thank you for subscribing</h1>
+            content = <h1 className="display-4 text-center text-success font-weight-bold">Thank you for subscribing</h1>
         } else {
-            content = <h1 className="display-4 text-danger text-center">Oops... Something wen wrong</h1>
+            content =
+                <h1 className="display-4 text-danger text-center font-weight-bold">Oops... Something wen wrong</h1>
         }
 
         return (

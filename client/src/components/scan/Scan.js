@@ -26,9 +26,12 @@ class Scan extends Component {
         this.props.generateOffCode(code);
     };
 
-
-    componentWillReceiveProps(newProps) {
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (nextProps.errors !== prevState.errors) {
+            return ({errors: nextProps.errors, isButtonClicked: false});
+        }
     }
+
 
     onChange = e => {
         this.setState({[e.target.name]: e.target.value})
@@ -102,14 +105,18 @@ class Scan extends Component {
                         <div className="col-md-8 m-auto">
 
                             <h2 className="display-4 text-center">Here is your Generated Code: </h2>
-                            <p className="lead text-center">Code: <span
-                                className="text-info font-weight-bold">{code}</span></p>
+
+                            <div className="form-group">
+                                <p className="lead text-center display-4 text-warning font-weight-bold">Code: <span
+                                    className="text-info font-weight-bold display-4">{code}</span></p>
+                            </div>
 
                             <div className="mt-5 mb-5"/>
                             <hr/>
 
                             <h1 className="display-4 text-center">Info</h1>
-                            <p className="lead text-center">Please Enter your information for getting points</p>
+                            <p className="lead text-center">Please Enter your information for getting awesome
+                                rewards</p>
                             <form onSubmit={this.onSubmit}>
                                 <div className="form-group">
                                     <Input
@@ -123,20 +130,7 @@ class Scan extends Component {
                                         onChange={this.onChange}
                                     />
                                 </div>
-                                <div className="form-group">
-                                    <Input
-                                        type="number"
-                                        className={classnames('form-control form-control-lg mb-2', {
-                                            'is-invalid': this.state.errors.validation
-                                        })}
-                                        name="phone"
-                                        placeholder="Please Enter your phone number"
-                                        value={this.state.phone}
-                                        onChange={this.onChange}
-                                    />
-                                    {this.state.errors.validation && (
-                                        <div className="invalid-feedback">{this.state.errors.validation}</div>)}
-                                </div>
+
                                 <div className="form-group">
                                     <Input
                                         type="email"
@@ -150,6 +144,23 @@ class Scan extends Component {
                                     />
                                     {this.state.errors.validation && (
                                         <div className="invalid-feedback">{this.state.errors.validation}</div>)}
+                                </div>
+
+                                <div className="form-group">
+                                    <Input
+                                        type="number"
+                                        className={classnames('form-control form-control-lg mb-2', {
+                                            'is-invalid': this.state.errors.validation || this.state.errors.phone
+                                        })}
+                                        name="phone"
+                                        placeholder="Please Enter your phone number"
+                                        value={this.state.phone}
+                                        onChange={this.onChange}
+                                    />
+                                    {this.state.errors.validation && (
+                                        <div className="invalid-feedback">{this.state.errors.validation}</div>)}
+                                    {this.state.errors.phone && (
+                                        <div className="invalid-feedback">{this.state.errors.phone}</div>)}
                                 </div>
 
                                 <div className="form-group">

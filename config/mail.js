@@ -10,8 +10,8 @@ module.exports = {
     },
     mail_options: {
         from: 'admin@mrclover.tk', // sender address
-        to: 'amirebrahimi5@gmail.com', // list of receivers
+        to: 'amir.m.ebrahimi@controladad.com', // list of receivers
         subject: 'Hello', // Subject line
-        text: 'Hello world', // plain text body
+        text: 'Here are the QR Codes yu have generated', // plain text body
     }
 };

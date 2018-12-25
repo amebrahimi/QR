@@ -193,41 +193,40 @@ router.post('/', (req, res) => {
                                                         // There is phone and email attached to this user we just want to update its record
                                                     } else {
 
-                                                        UserQrScan.findOne({phone: phoneToCheck})
+                                                        UserQrScan.findOne({phone: phoneToCheck, email: emailToCheck})
                                                             .then(user => {
+                                                               if (!user) {
 
-                                                                if (user.email !== emailToCheck) {
-                                                                    errors.validation = 'The entered use and email do not match';
-                                                                    return res.status(400).json(errors);
-                                                                }
+                                                                   errors.phone = 'There is a user who is already attached to this email/phone';
+                                                                   return res.status(400).json(errors);
 
-                                                                let point_to_add;
-                                                                let points = user.user_points;
+                                                               }  else {
 
-                                                                point_to_add = qr.point;
-                                                                points = point_to_add + points;
-                                                                user.user_points = points;
+                                                                   let point_to_add;
+                                                                   let points = user.user_points;
 
-                                                                const updateUser = {
-                                                                    name,
-                                                                    user_points: points,
-                                                                    $push: {
-                                                                        off_codes: {
-                                                                            qr: qr_id,
-                                                                            code: scanned_code
-                                                                        }
-                                                                    }
+                                                                   point_to_add = qr.point;
+                                                                   points = point_to_add + points;
+                                                                   user.user_points = points;
 
-                                                                };
-                                                                const options = {new: true};
+                                                                   const updateUser = {
+                                                                       name,
+                                                                       user_points: points,
+                                                                       $push: {
+                                                                           off_codes: {
+                                                                               qr: qr_id,
+                                                                               code: scanned_code
+                                                                           }
+                                                                       }
 
-                                                                UserQrScan.findByIdAndUpdate(user._id, updateUser, options)
-                                                                    .then(updateUser => res.json(updateUser))
-                                                                    .catch(err => console.log(err));
+                                                                   };
+                                                                   const options = {new: true};
 
+                                                                   UserQrScan.findByIdAndUpdate(user._id, updateUser, options)
+                                                                       .then(updateUser => res.json(updateUser))
+                                                                       .catch(err => console.log(err));
+                                                               }
                                                             }).catch(err => console.log(err));
-
-
                                                     }
                                                 })
                                                 .catch(err => console.log(err));

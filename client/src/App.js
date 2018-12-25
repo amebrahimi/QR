@@ -1,12 +1,11 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
-import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import AppNavbar from "./components/layout/Navbar";
 import Login from "./components/login/Login";
 import jwt_decode from 'jwt-decode';
-
 import {Provider} from 'react-redux';
+
 import store from './store';
 import {logoutUser, setCurrentUser} from "./actions/authActions";
 import setAuthToken from "./utils/setAuthToken";
@@ -15,6 +14,7 @@ import Dashboard from "./components/dashboard/Dashboard";
 import Statistics from "./components/dashboard/Statistics";
 import Scan from "./components/scan/Scan";
 import Success from "./components/scan/Success";
+import './App.css';
 
 
 if (localStorage.jwtToken) {
