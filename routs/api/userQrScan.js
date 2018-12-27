@@ -2,326 +2,293 @@ const isEmpty = require("../../validation/is-empty");
 
 const Qr = require('../../models/QR');
 const UserQrScan = require('../../models/UserQRScan');
+const OffCode = require('../../models/OffCode');
 const express = require("express");
 const router = express.Router();
 
+const checkOffCodeInUserDatabases = async (off_id) => {
 
-async function extracted(user, dataForUpdate, options, otherUser, res) {
-    await otherUser.delete()
-        .then(status => console.log(status))
-        .catch(err => console.log(err));
+    return await UserQrScan.findOne({'off_codes.off_codes': off_id});
+};
 
-    await UserQrScan.findByIdAndUpdate(user._id, dataForUpdate, options)
-        .then(updatedUser => {
-                res.json(updatedUser);
-            }
-        )
+const findUserByEmail = async email => {
+
+    return await UserQrScan.findOne({email});
+
+};
+
+const findUserByPhone = async phone => {
+
+    return await UserQrScan.findOne({phone});
+
+};
+
+const getQrDetails = async qr_id => {
+
+    return await Qr.findById(qr_id);
+};
+
+const createUser = (res, email, phone, name, qr_id, off_id, point) => {
+
+    new UserQrScan({
+        email,
+        phone,
+        name,
+        user_points: point,
+        off_codes: {
+            qr: qr_id,
+            off_codes: off_id
+        }
+    }).save()
+        .then(user => res.json(user))
         .catch(err => res.status(500).json(err));
-}
+
+};
+
+const updateData = async (updatedData, userId) => {
+
+    const options = {new: true};
+    return await UserQrScan.findByIdAndUpdate(userId, updatedData, options);
+
+};
+
+const deleteUser = async userId => {
+    return await UserQrScan.findByIdAndDelete(userId);
+};
+
+const mergeUser = (res, email, phone, name, qr_id, off_id, emailUser, phoneUser, point) => {
+
+    const points = emailUser.user_points + phoneUser.user_points + point;
+
+    const updatedData = {
+        name,
+        email,
+        phone,
+        user_points: points,
+        $push: {
+            off_codes: {
+                $each: [...phoneUser.off_codes, {
+                    qr: qr_id,
+                    off_codes: off_id
+                }]
+            }
+        }
+    };
+
+    deleteUser(phoneUser._id)
+        .then(u => {
+            updateData(updatedData, emailUser._id)
+                .then(updatedUser => res.json(updatedUser))
+                .catch(err => console.log(err));
+        })
+        .catch(err => console.log(err));
+};
+
+const updateUser = (res, email, phone, name, qr_id, off_id, user, point) => {
+
+    if (email !== null && phone !== null) {
+
+        const points = user.user_points + point;
+
+        const updatedData = {
+            name,
+            email,
+            phone,
+            user_points: points,
+            $push: {
+                off_codes: {
+                    qr: qr_id,
+                    off_codes: off_id
+                }
+            }
+        };
+
+        updateData(updatedData, user._id)
+            .then(updatedUser => res.json(updatedUser))
+            .catch(err => console.log(err));
+
+    } else {
+        const points = user.user_points + point;
+
+        const updatedData = {
+            name,
+            user_points: points,
+            $push: {
+                off_codes: {
+                    qr: qr_id,
+                    off_codes: off_id
+                }
+            }
+        };
+
+        updateData(updatedData, user._id)
+            .then(updatedUser => res.json(updatedUser))
+            .catch(err => console.log(err));
+    }
+
+};
 
 // @Route   Post api/user
 // @desc    add user to database
 // @access  Public
+// router.post('/', (req, res) => {
 router.post('/', (req, res) => {
 
     const errors = {};
-
-    const {phone, email, name, qr_id, scanned_code} = req.body;
+    const {phone, email, name, qr_id, off_id} = req.body;
 
     const phoneToCheck = !isEmpty(phone) ? phone : '';
     const emailToCheck = !isEmpty(email) ? email : '';
 
-
     if (isEmpty(phoneToCheck) && isEmpty(emailToCheck)) {
         errors.validation = 'At least one of the phone/email fields must be filled';
         return res.status(400).json(errors);
-    } else if (!isEmpty(phoneToCheck) && !isEmpty(emailToCheck)) {
-
-        /* Check if that the off code is anyones database
-         * we don't let it to attach to the user or another user again
-        */
-        UserQrScan.find({"off_codes.code": scanned_code})
-            .then(user => {
-                if (!isEmpty(user)) {
-                    errors.used = 'This code was attached to a user before';
-                    res.status(400).json(errors)
-                } else {
-
-                    // We get the qr details from the database
-                    Qr.findById(qr_id)
-                        .then(qr => {
-
-                            // We try to create a new user if it fails it means there is a duplicate
-                            new UserQrScan({
-                                email: emailToCheck,
-                                phone: phoneToCheck,
-                                name,
-                                user_points: qr.point,
-                                off_codes: {
-                                    qr: qr_id,
-                                    code: scanned_code
-                                }
-                            }).save()
-                                .then(data => res.json(data))
-                                .catch(err => {
-
-                                    // Handling the duplicate stuff
-                                    if (!isEmpty(err.errors.phone) || !isEmpty(err.errors.email)) {
-
-                                        if (isEmpty(err.errors.phone)) {
-
-                                            /*
-                                             * We have a user entry by this email. so we want to update its phone
-                                             * number with the given phone number and update its data
-                                             */
-                                            UserQrScan.findOne({email: emailToCheck})
-                                                .then(user => {
-
-                                                    let point_to_add;
-                                                    let points = user.user_points;
-
-                                                    point_to_add = qr.point;
-                                                    points = point_to_add + points;
-                                                    user.user_points = points;
-
-                                                    const updateUser = {
-                                                        name,
-                                                        user_points: points,
-                                                        phone: phoneToCheck,
-                                                        $push: {
-                                                            off_codes: {
-                                                                qr: qr_id,
-                                                                code: scanned_code
-                                                            }
-                                                        }
-
-                                                    };
-                                                    const options = {new: true};
-
-                                                    UserQrScan.findByIdAndUpdate(user._id, updateUser, options)
-                                                        .then(updateUser => res.json(updateUser))
-                                                        .catch(err => console.log(err));
-
-                                                }).catch(err => console.log(err));
-
-
-                                        } else if (isEmpty(err.errors.email)) {
-
-                                            /*
-                                             * We have a user entry by this phone. so we want to update its email
-                                             * number with the given email and update its data
-                                             */
-                                            UserQrScan.findOne({phone: phoneToCheck})
-                                                .then(user => {
-
-                                                    let point_to_add;
-                                                    let points = user.user_points;
-
-                                                    point_to_add = qr.point;
-                                                    points = point_to_add + points;
-                                                    user.user_points = points;
-
-                                                    const updateUser = {
-                                                        name,
-                                                        user_points: points,
-                                                        email: emailToCheck,
-                                                        $push: {
-                                                            off_codes: {
-                                                                qr: qr_id,
-                                                                code: scanned_code
-                                                            }
-                                                        }
-
-                                                    };
-                                                    const options = {new: true};
-
-                                                    UserQrScan.findByIdAndUpdate(user._id, updateUser, options)
-                                                        .then(updateUser => res.json(updateUser))
-                                                        .catch(err => console.log(err));
-
-                                                }).catch(err => console.log(err));
-
-
-                                            // If the user has email and phone
-                                        } else {
-
-                                            /*
-                                             * Check if the user has phone number and email attached to its database
-                                             */
-                                            UserQrScan.findOne({email: emailToCheck})
-                                                .then(user => {
-                                                    /* Here we check if the phone part is empty that means the user has another account with his/her phone.
-                                                     * We must merge them together and delete the other one
-                                                     */
-                                                    if (isEmpty(user.phone)) {
-
-                                                        UserQrScan.findOne({phone: phoneToCheck})
-                                                            .then(otherUser => {
-
-                                                                let point_to_add;
-                                                                let points = user.user_points;
-
-
-                                                                point_to_add = qr.point;
-                                                                points = point_to_add + points;
-                                                                points = otherUser.user_points + points;
-                                                                user.user_points = points;
-
-
-                                                                const dataForUpdate = {
-
-                                                                    phone: phoneToCheck,
-                                                                    name,
-                                                                    user_points: points,
-                                                                    $push: {
-                                                                        off_codes: {
-                                                                            $each: [...otherUser.off_codes, {
-                                                                                qr: qr_id,
-                                                                                code: scanned_code
-                                                                            }],
-                                                                        }
-                                                                    }
-                                                                };
-
-                                                                const options = {new: true};
-                                                                extracted(user, dataForUpdate, options, otherUser, res)
-                                                                    .then(ok => console.log(ok));
-
-                                                            })
-                                                            .catch(err => console.log(err));
-
-                                                        // There is phone and email attached to this user we just want to update its record
+    }
+    checkOffCodeInUserDatabases(off_id)
+        .then(codeUser => {
+            if (!isEmpty(codeUser)) {
+                errors.duplicate = 'Sorry this off code is attached to another user';
+                return res.status(404).json(errors);
+            } else {
+                getQrDetails(qr_id)
+                    .then(qr => {
+                        if (!isEmpty(phoneToCheck) && !isEmpty(emailToCheck)) {
+                            findUserByPhone(phoneToCheck)
+                                .then(phoneUser => {
+                                    findUserByEmail(emailToCheck)
+                                        .then(emailUser => {
+                                            if (!phoneUser) {
+                                                if (!emailUser) {
+                                                    createUser(res, emailToCheck, phoneToCheck, name, qr_id, off_id, qr.point);
+                                                } else {
+                                                    if (isEmpty(emailUser.phone)) {
+                                                        updateUser(res, emailToCheck, phoneToCheck, name, qr_id, off_id, emailUser, qr.point);
                                                     } else {
-
-                                                        UserQrScan.findOne({phone: phoneToCheck, email: emailToCheck})
-                                                            .then(user => {
-                                                               if (!user) {
-
-                                                                   errors.phone = 'There is a user who is already attached to this email/phone';
-                                                                   return res.status(400).json(errors);
-
-                                                               }  else {
-
-                                                                   let point_to_add;
-                                                                   let points = user.user_points;
-
-                                                                   point_to_add = qr.point;
-                                                                   points = point_to_add + points;
-                                                                   user.user_points = points;
-
-                                                                   const updateUser = {
-                                                                       name,
-                                                                       user_points: points,
-                                                                       $push: {
-                                                                           off_codes: {
-                                                                               qr: qr_id,
-                                                                               code: scanned_code
-                                                                           }
-                                                                       }
-
-                                                                   };
-                                                                   const options = {new: true};
-
-                                                                   UserQrScan.findByIdAndUpdate(user._id, updateUser, options)
-                                                                       .then(updateUser => res.json(updateUser))
-                                                                       .catch(err => console.log(err));
-                                                               }
-                                                            }).catch(err => console.log(err));
+                                                        errors.phone = 'Sorry the email and phone mismatch';
+                                                        res.status(400).json(errors);
                                                     }
-                                                })
-                                                .catch(err => console.log(err));
-                                        }
+                                                }
+                                            } else {
+                                                if (!emailUser) {
+                                                    updateUser(res, emailToCheck, phoneToCheck, name, qr_id, off_id, phoneUser, qr.point);
+                                                } else {
+                                                    if (emailUser.phone) {
+                                                        if (emailUser.phone === phoneToCheck) {
+                                                            updateUser(res, emailToCheck, phoneToCheck, name, qr_id, off_id, emailUser, qr.point);
+                                                        } else {
+                                                            errors.phone = 'Sorry the email and phone mismatch';
+                                                            res.status(400).json(errors);
+                                                        }
+                                                    } else {
+                                                        if (phoneUser.email) {
 
-                                    } else {
-                                        res.status(500).json(err);
-                                    }
+                                                            if (phoneUser.email === emailUser.email) {
+                                                                updateUser(res, emailToCheck, phoneToCheck, name, qr_id, off_id, emailUser, qr.point);
+                                                            } else {
+                                                                errors.phone = 'Sorry the email and phone mismatch';
+                                                                res.status(400).json(errors);
+                                                            }
 
+                                                        } else {
 
-                                }).catch(err => console.log(err));
-                        });
-                }
-            })
-            .catch(err => console.log(err));
+                                                            mergeUser(res, emailToCheck, phoneToCheck, name, qr_id, off_id, emailUser, phoneUser, qr.point);
 
-        // If the user entered one of the email/phone
-    } else {
-
-        /* Check if that the off code is anyones database
-         * we don't let it to attach to the user or another user again
-        */
-        UserQrScan.find({"off_codes.code": scanned_code})
-            .then(user => {
-                if (!isEmpty(user)) {
-                    errors.used = 'This code was attached to a user before';
-                    res.status(400).json(errors)
-                } else {
-                    // Check if the phone/email that is entered is in the database
-                    UserQrScan.findOne({
-                        $or:
-                            [
-                                {phone: phoneToCheck},
-                                {email: emailToCheck}
-                            ]
-                    })
-                        .then(user => {
-                            // User found lets update the users info
-                            if (user) {
-                                Qr.findById(qr_id)
-                                    .then(qr => {
-                                        let point_to_add;
-                                        let points = user.user_points;
-
-                                        point_to_add = qr.point;
-                                        points = point_to_add + points;
-                                        user.user_points = points;
-
-                                        const updateUser = {
-                                            name,
-                                            user_points: points,
-                                            $push: {
-                                                off_codes: {
-                                                    qr: qr_id,
-                                                    code: scanned_code
+                                                        }
+                                                    }
                                                 }
                                             }
+                                        }).catch(err => console.log(err));
+                                }).catch(err => console.log(err));
 
-                                        };
-                                        const options = {new: true};
-
-                                        UserQrScan.findByIdAndUpdate(user._id, updateUser, options)
-                                            .then(updateUser => res.json(updateUser))
-                                            .catch(err => console.log(err));
-
+                        } else {
+                            if (!isEmpty(emailToCheck)) {
+                                findUserByEmail(emailToCheck)
+                                    .then(user => {
+                                        if (!user) {
+                                            createUser(res, emailToCheck, null, name, qr_id, off_id, qr.point)
+                                        } else {
+                                            updateUser(res, emailToCheck, null, name, qr_id, off_id, user, qr.point)
+                                        }
                                     }).catch(err => console.log(err));
-
-                                // There is no user lets create one
                             } else {
-                                Qr.findById(qr_id)
-                                    .then(qr => {
-                                        const user = new UserQrScan({
-                                            email: emailToCheck,
-                                            phone: phoneToCheck,
-                                            name,
-                                            user_points: qr.point,
-                                            off_codes: {
-                                                qr: qr_id,
-                                                code: scanned_code
-                                            }
-                                        });
+                                findUserByPhone(phoneToCheck)
+                                    .then(user => {
+                                        if (!user) {
+                                            createUser(res, null, phoneToCheck, name, qr_id, off_id, qr.point)
+                                        } else {
 
-                                        user.save()
-                                            .then(user => res.json(user))
-                                            .catch(err => console.log(err));
-
-
+                                            updateUser(res, null, phoneToCheck, name, qr_id, off_id, user, qr.point)
+                                        }
                                     }).catch(err => console.log(err));
-
                             }
-                        }).catch(err => console.log(err));
-                }
-            })
-            .catch(err => console.log(err));
-    }
+
+
+                        }
+
+                    }).catch(err => console.log(err));
+            }
+
+        }).catch(err => console.log(err));
+});
+
+
+// @Route   Post api/user/use
+// @desc    use the off code that is generated by the user / Check if it used before
+// @access  Public
+router.post('/use', (req, res) => {
+
+    const {code} = req.body;
+    const errors = {};
+
+
+    OffCode.findOne({code})
+        .then(data => {
+
+            if (data.is_used) {
+
+                errors.used = 'Sorry the Code you have entered has been used';
+                res.status(400).json(errors);
+
+            } else {
+
+                UserQrScan.find()
+                    .populate({
+                        path: 'off_codes.off_codes',
+                        match: {code: `${code}`},
+                        select: '_id',
+                    }).populate({
+                    path: 'off_codes.qr',
+                    select: 'type -_id'
+                }).then(users => {
+
+                    res.json(users);
+
+                    users.forEach(user => {
+                        user.off_codes.forEach((offCode) => {
+                            if (offCode.off_codes !== null) {
+
+                                const offCodeId = offCode.off_codes._id;
+
+                                const updatedData = {
+                                    is_used: true
+                                };
+
+                                OffCode.findByIdAndUpdate(offCodeId, updatedData)
+                                    .then(offC => {
+                                        res.json({
+                                            type: offCode.qr.type,
+                                            is_used: offC.is_used
+                                        });
+                                    })
+                                    .catch(err => console.log(err));
+                            }
+                        });
+                    });
+                }).catch(err => console.log(err));
+            }
+
+        })
+        .catch(err => console.log(err));
 
 });
 

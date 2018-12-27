@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const uniqueValidator = require('mongoose-unique-validator');
 
 const UserQrScanSchema = new Schema({
     date_scanned: {
@@ -9,11 +8,9 @@ const UserQrScanSchema = new Schema({
     },
     email: {
         type: String,
-        unique: true
     },
     phone: {
         type: String,
-        unique: true
     },
     name: String,
     user_points: {
@@ -23,15 +20,15 @@ const UserQrScanSchema = new Schema({
 
     off_codes: [
         {
-            code: String,
             qr: {
                 type: Schema.Types.ObjectId,
                 ref: 'qrs',
                 required: true
             },
-            is_used: {
-                type: Boolean,
-                default: false
+            off_codes: {
+                type: Schema.Types.ObjectId,
+                ref: 'off_codes',
+                required: true
             }
         }
     ]
@@ -39,6 +36,5 @@ const UserQrScanSchema = new Schema({
 
 });
 
-UserQrScanSchema.plugin(uniqueValidator);
 
 module.exports = UserQrScan = mongoose.model('codeUsers', UserQrScanSchema);
