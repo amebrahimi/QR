@@ -1,7 +1,7 @@
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 import setAuthToken from "../utils/setAuthToken";
-import {GET_ERRORS, SET_CURRENT_USER} from "./types";
+import {GET_ERRORS, HIDE_NAVBAR, SET_CURRENT_USER, SHOW_NAVBAR} from "./types";
 
 export const loginUser = userData => dispatch => {
     axios.post('/api/admin/login', userData)
@@ -20,6 +20,18 @@ export const loginUser = userData => dispatch => {
             type: GET_ERRORS,
             payload: err.response.data
         }));
+};
+
+export const hideNavbar = () => dispatch => {
+    return dispatch({
+        type: HIDE_NAVBAR
+    });
+};
+
+export const showNavbar = () => dispatch => {
+    return dispatch({
+        type: SHOW_NAVBAR
+    });
 };
 
 export const setCurrentUser = decode => {

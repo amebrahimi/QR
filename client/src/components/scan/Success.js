@@ -1,7 +1,12 @@
 import React, {Component} from 'react';
 import {connect} from "react-redux";
+import {hideNavbar} from "../../actions/authActions";
 
 class Success extends Component {
+
+    componentDidMount() {
+        this.props.hideNavbar();
+    }
 
     render() {
         const {successful} = this.props.userQr;
@@ -26,4 +31,4 @@ const mapStateToProps = state => ({
     userQr: state.userQr
 });
 
-export default connect(mapStateToProps)(Success);
+export default connect(mapStateToProps, {hideNavbar})(Success);

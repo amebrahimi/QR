@@ -7,3 +7,6 @@ export const QR_GENERATED = 'QR_GENERATED';
 export const QR_LOADING_FALSE = 'QR_LOADING_FALSE';
 export const QR_OFF_CODE_GENERATED = 'QR_OFF_CODE_GENERATED';
 export const SEND_QR_USER = 'SEND_QR_USER';
+export const HIDE_NAVBAR = 'HIDE_NAVBAR';
+export const SHOW_NAVBAR = 'SHOW_NAVBAR';
+export const GET_OFF_CODE_TYPE = 'GET_OFF_CODE_TYPE';

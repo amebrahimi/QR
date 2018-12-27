@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import Spinner from "../common/Spinner";
 import isEmpty from "../../validation/is-empty";
 import {submitQrUser} from "../../actions/userQrActions";
+import {hideNavbar} from "../../actions/authActions";
 
 class Scan extends Component {
 
@@ -24,14 +25,15 @@ class Scan extends Component {
     componentDidMount() {
         const {code} = qs.parse(this.props.location.search);
         this.props.generateOffCode(code);
+        this.props.hideNavbar();
     };
 
-    static getDerivedStateFromProps(nextProps, prevState) {
-        if (nextProps.errors !== prevState.errors) {
-            return ({errors: nextProps.errors, isButtonClicked: false});
+    UNSAFE_componentWillReceiveProps(nextProps, nextContext) {
+
+        if (nextProps.errors) {
+            this.setState({errors: nextProps.errors, isButtonClicked: false});
         }
     }
-
 
     onChange = e => {
         this.setState({[e.target.name]: e.target.value})
@@ -58,7 +60,7 @@ class Scan extends Component {
 
             this.setState({isButtonClicked: true});
 
-            const {id, code} = this.props.qrs.qr_data;
+            const {id, code, off_id} = this.props.qrs.qr_data;
 
             const phoneToSend = phone.toLowerCase();
             const emailToSend = email.toLowerCase();
@@ -68,6 +70,7 @@ class Scan extends Component {
                 phone: phoneToSend,
                 email: emailToSend,
                 qr_id: id,
+                off_id,
                 scanned_code: code
             };
 
@@ -82,6 +85,7 @@ class Scan extends Component {
         const {expire, max_use} = this.props.errors;
         const {code} = this.props.qrs.qr_data;
         const {loading} = this.props.qrs;
+
 
         if (loading) {
 
@@ -102,72 +106,82 @@ class Scan extends Component {
                 content = (
 
                     <div className="container">
-                        <div className="col-md-8 m-auto">
 
-                            <h2 className="display-4 text-center">Here is your Generated Code: </h2>
+                        <div className="row h-100 justify-content-center align items center">
 
-                            <div className="form-group">
-                                <p className="lead text-center display-4 text-warning font-weight-bold">Code: <span
-                                    className="text-info font-weight-bold display-4">{code}</span></p>
+                            <div className="col-12">
+
+                                <div className="jumbotron m-auto">
+
+                                    <h2 className="display-4 text-center">Here is your Generated Code: </h2>
+
+                                    <div className="form-group">
+                                        <p className="lead text-center display-4 text-warning font-weight-bold">Code: <span
+                                            className="text-info font-weight-bold display-4">{code}</span></p>
+                                    </div>
+
+                                    <div className="mt-5 mb-5"/>
+                                    <hr/>
+
+                                    <h1 className="display-4 text-center">Info</h1>
+                                    <p className="lead text-center">Please Enter your information for getting awesome
+                                        rewards</p>
+                                    <form onSubmit={this.onSubmit}>
+                                        <div className="form-group">
+                                            <Input
+                                                type="text"
+                                                className={classnames('form-control form-control-lg mb-2', {
+                                                    'is-invalid': this.state.errors.amount
+                                                })}
+                                                name="name"
+                                                placeholder="Please Enter your name"
+                                                value={this.state.name}
+                                                onChange={this.onChange}
+                                            />
+                                        </div>
+
+                                        <div className="form-group">
+                                            <Input
+                                                type="email"
+                                                className={classnames('form-control form-control-lg mb-2', {
+                                                    'is-invalid': this.state.errors.validation
+                                                })}
+                                                name="email"
+                                                placeholder="please enter your email"
+                                                value={this.state.email}
+                                                onChange={this.onChange}
+                                            />
+                                            {this.state.errors.validation && (
+                                                <div className="invalid-feedback">{this.state.errors.validation}</div>)}
+                                        </div>
+
+                                        <div className="form-group">
+                                            <Input
+                                                type="number"
+                                                className={classnames('form-control form-control-lg mb-2', {
+                                                    'is-invalid': this.state.errors.validation || this.state.errors.phone
+                                                })}
+                                                name="phone"
+                                                placeholder="Please Enter your phone number"
+                                                value={this.state.phone}
+                                                onChange={this.onChange}
+                                            />
+                                            {this.state.errors.validation && (
+                                                <div className="invalid-feedback">{this.state.errors.validation}</div>)}
+                                            {this.state.errors.phone && (
+                                                <div className="invalid-feedback">{this.state.errors.phone}</div>)}
+                                        </div>
+
+                                        <div className="form-group">
+                                            <Input type="submit" value="Send" disabled={this.state.isButtonClicked}
+                                                   className="btn btn-info btn-block"/>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                {/*col-div*/}
                             </div>
-
-                            <div className="mt-5 mb-5"/>
-                            <hr/>
-
-                            <h1 className="display-4 text-center">Info</h1>
-                            <p className="lead text-center">Please Enter your information for getting awesome
-                                rewards</p>
-                            <form onSubmit={this.onSubmit}>
-                                <div className="form-group">
-                                    <Input
-                                        type="text"
-                                        className={classnames('form-control form-control-lg mb-2', {
-                                            'is-invalid': this.state.errors.amount
-                                        })}
-                                        name="name"
-                                        placeholder="Please Enter your name"
-                                        value={this.state.name}
-                                        onChange={this.onChange}
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <Input
-                                        type="email"
-                                        className={classnames('form-control form-control-lg mb-2', {
-                                            'is-invalid': this.state.errors.validation
-                                        })}
-                                        name="email"
-                                        placeholder="please enter your email"
-                                        value={this.state.email}
-                                        onChange={this.onChange}
-                                    />
-                                    {this.state.errors.validation && (
-                                        <div className="invalid-feedback">{this.state.errors.validation}</div>)}
-                                </div>
-
-                                <div className="form-group">
-                                    <Input
-                                        type="number"
-                                        className={classnames('form-control form-control-lg mb-2', {
-                                            'is-invalid': this.state.errors.validation || this.state.errors.phone
-                                        })}
-                                        name="phone"
-                                        placeholder="Please Enter your phone number"
-                                        value={this.state.phone}
-                                        onChange={this.onChange}
-                                    />
-                                    {this.state.errors.validation && (
-                                        <div className="invalid-feedback">{this.state.errors.validation}</div>)}
-                                    {this.state.errors.phone && (
-                                        <div className="invalid-feedback">{this.state.errors.phone}</div>)}
-                                </div>
-
-                                <div className="form-group">
-                                    <Input type="submit" value="Send" disabled={this.state.isButtonClicked}
-                                           className="btn btn-info btn-block"/>
-                                </div>
-                            </form>
+                            {/*row-div*/}
                         </div>
 
                     </div>
@@ -196,4 +210,4 @@ const mapStateToProps = state => ({
     errors: state.errors
 });
 
-export default connect(mapStateToProps, {generateOffCode, submitQrUser})(Scan);
+export default connect(mapStateToProps, {generateOffCode, submitQrUser, hideNavbar})(Scan);

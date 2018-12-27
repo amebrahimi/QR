@@ -1,8 +1,16 @@
-import {GET_QR_TYPES, QR_GENERATED, QR_LOADING, QR_LOADING_FALSE, QR_OFF_CODE_GENERATED} from "../actions/types";
+import {
+    GET_OFF_CODE_TYPE,
+    GET_QR_TYPES,
+    QR_GENERATED,
+    QR_LOADING,
+    QR_LOADING_FALSE,
+    QR_OFF_CODE_GENERATED
+} from "../actions/types";
 
 const initialState = {
     types: [],
     qr_data: {},
+    off_data: {},
     success: false,
     loading: false
 };
@@ -41,6 +49,13 @@ export default function (state = initialState, action) {
                 ...state,
                 success: true,
                 loading: false
+            };
+
+        case GET_OFF_CODE_TYPE:
+            return {
+                ...state,
+                loading: false,
+                off_data: action.payload
             };
 
         default:

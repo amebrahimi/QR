@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import classnames from 'classnames';
 import {Container, Form, FormGroup, Input, Row} from 'reactstrap';
 import {connect} from "react-redux";
-import {loginUser} from "../../actions/authActions";
+import {loginUser, showNavbar} from "../../actions/authActions";
 import PropTypes from 'prop-types';
 
 class Login extends Component {
@@ -33,6 +33,8 @@ class Login extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+
+        this.props.showNavbar();
 
         if (nextProps.auth.isAuthenticated) {
             this.props.history.push('/dashboard');
@@ -100,7 +102,8 @@ class Login extends Component {
 Login.propTypes = {
     loginUser: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired,
-    errors: PropTypes.object.isRequired
+    errors: PropTypes.object.isRequired,
+    showNavbar: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
@@ -108,4 +111,4 @@ const mapStateToProps = state => ({
     errors: state.errors
 });
 
-export default connect(mapStateToProps, {loginUser})(Login);
+export default connect(mapStateToProps, {loginUser, showNavbar})(Login);
