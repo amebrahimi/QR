@@ -14,6 +14,7 @@ const validator = require('../../validation/qr');
 const scanValidator = require('../../validation/scanning_qr');
 
 const QR = require('../../models/QR');
+const OffCode = require('../../models/OffCode');
 
 // @Route   POST api/qr/generate
 // @desc    Gets the type and amount of barcodes and generates them based on that
@@ -39,46 +40,52 @@ router.post('/generate',
 // @access  public
 router.get('/generate_off', (req, res) => {
 
+    const errors = {};
+
     QR.findOne({generated_hash: req.query.code})
         .then(qr => {
             if (!qr) {
-                errors.code = 'Code not found';
+                errors.code = 'QR Code not found';
                 res.status(400).json(errors)
             } else {
 
                 const {errors, isValid} = scanValidator(qr);
 
                 if (!isValid) {
+
                     return res.status(400).json(errors)
+
                 }
 
 
                 const m = String.random(8);
 
+                new OffCode({
+                    code: m
+                }).save()
+                    .then(code => {
 
-                const scannedTimes = qr.scanned_times + 1;
-                const remainingUse = qr.max_use - scannedTimes < 0 ? 0 : qr.max_use - scannedTimes;
+                        const scannedTimes = qr.scanned_times + 1;
+                        const remainingUse = qr.max_use - scannedTimes < 0 ? 0 : qr.max_use - scannedTimes;
 
+                        const list = [...qr.off_codes, code._id];
 
-                const list = [
-                    ...qr.generated_off_codes, {
-                        code: m,
-                    }];
+                        const updateFields = {
+                            off_codes: [...list],
+                            scanned_times: scannedTimes,
+                            remaining_use: remainingUse
+                        };
 
-                const updateFields = {
-                    generated_off_codes: [...list],
-                    scanned_times: scannedTimes,
-                    remaining_use: remainingUse
-                };
+                        QR.findOneAndUpdate({generated_hash: req.query.code}, updateFields, {new: true})
+                            .then(newQr => res.json({
+                                id: newQr._id,
+                                off_id: code._id,
+                                type: newQr.type,
+                                code: m
+                            }))
+                            .catch(err => console.log(err))
 
-                QR.findOneAndUpdate({generated_hash: req.query.code}, updateFields, {new: true})
-                    .then(newQr => res.json({
-                        id: newQr._id,
-                        type: newQr.type,
-                        codes: newQr.generated_off_codes,
-                        code: m
-                    }))
-                    .catch(err => console.log(err))
+                    }).catch(err => console.log(err));
             }
         }).catch(err => console.log(err))
 });

@@ -35,17 +35,11 @@ const QrSchema = new Schema({
         type: Number,
         default: 0
     },
-    generated_off_codes: [{
-        code: {
-            type: String,
-            unique: true
-        },
-        is_used: {
-            type: Boolean,
-            default: false
-        }
-    }]
-
+    off_codes: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'off_codes'
+        }]
 });
 
 module.exports = Qr = mongoose.model('qrs', QrSchema);
