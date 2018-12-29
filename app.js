@@ -5,6 +5,7 @@ const passport = require('passport');
 const users = require('./routs/api/admin_user');
 const qr = require('./routs/api/qr');
 const userQrScan = require('./routs/api/userQrScan');
+const query = require('./routs/api/query');
 const app = express();
 
 // Body parser middleware
@@ -31,6 +32,7 @@ require('./config/passport')(passport);
 app.use('/api/admin', users);
 app.use('/api/qr', qr);
 app.use('/api/user', userQrScan);
+app.use('/api/query', query);
 
 port = 5000;
 
