@@ -6,6 +6,8 @@ const OffCode = require('../../models/OffCode');
 const express = require("express");
 const router = express.Router();
 
+const validateOffCode = require('../../validation/off_code');
+
 const checkOffCodeInUserDatabases = async (off_id) => {
 
     return await UserQrScan.findOne({'off_codes.off_codes': off_id});
@@ -238,11 +240,22 @@ router.post('/', (req, res) => {
 router.post('/use', (req, res) => {
 
     const {code} = req.body;
-    const errors = {};
+    const {errors, isValid} = validateOffCode(req.body);
+
+    // Check validation
+    if (!isValid) {
+        return res.status(400).json(errors)
+    }
 
 
     OffCode.findOne({code})
         .then(data => {
+
+
+            if (!data) {
+                errors.error = "The code you have entered is incorrect...";
+                return res.status(400).json(errors);
+            }
 
             if (data.is_used) {
 
@@ -260,8 +273,6 @@ router.post('/use', (req, res) => {
                     path: 'off_codes.qr',
                     select: 'type -_id'
                 }).then(users => {
-
-                    res.json(users);
 
                     users.forEach(user => {
                         user.off_codes.forEach((offCode) => {
@@ -282,6 +293,7 @@ router.post('/use', (req, res) => {
                                     })
                                     .catch(err => console.log(err));
                             }
+
                         });
                     });
                 }).catch(err => console.log(err));

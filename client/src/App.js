@@ -15,6 +15,7 @@ import Statistics from "./components/dashboard/Statistics";
 import Scan from "./components/scan/Scan";
 import Success from "./components/scan/Success";
 import './App.css';
+import UseOffCode from "./components/off_code/UseOffCode";
 
 
 if (localStorage.jwtToken) {
@@ -47,6 +48,7 @@ class App extends Component {
                         <Route exact path="/" component={Login}/>
                         <Route exact path="/scan" component={Scan}/>
                         <Route exact path="/submit" component={Success}/>
+                        <Route exact path="/off" component={UseOffCode}/>
                         <Switch>
                             <PrivateRoute exact path="/dashboard" component={Dashboard}/>
                             <PrivateRoute exact path="/dashboard/statistics" component={Statistics}/>
