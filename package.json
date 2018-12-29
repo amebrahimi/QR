@@ -7,7 +7,7 @@
     "server": "nodemon server.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server-build": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
+    "server-build": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client && npm install"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
