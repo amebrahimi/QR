@@ -7,6 +7,7 @@ const qr = require('./routs/api/qr');
 const userQrScan = require('./routs/api/userQrScan');
 const query = require('./routs/api/query');
 const app = express();
+const path = require('path');
 
 // Body parser middleware
 app.use(bodyParser.urlencoded({extended: false}));
@@ -35,5 +36,14 @@ app.use('/api/user', userQrScan);
 app.use('/api/query', query);
 
 port = 5000;
+
+if (process.env.NODE_ENV === 'production') {
+
+    app.use(express.static('client/build'))
+
+    app.get('*' , (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
+    })
+}
 
 app.listen(port, () => console.log(`Server Running on port ${port}`));
