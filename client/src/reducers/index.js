@@ -4,6 +4,7 @@ import errorReducer from "./errorReducer";
 import qrReducer from "./qrReducer";
 import userQrReducer from "./userQrReducer";
 import navbarReducer from "./navbarReducer";
+import queryReducer from "./queryReducer";
 
 
 export default combineReducers({
@@ -12,4 +13,5 @@ export default combineReducers({
     qrs: qrReducer,
     userQr: userQrReducer,
     navbar: navbarReducer,
+    table: queryReducer
 });
