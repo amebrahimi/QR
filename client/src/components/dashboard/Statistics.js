@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Col, Container, Row, Table} from "reactstrap";
+import {Col, Container, Row} from "reactstrap";
 import {connect} from "react-redux";
 import {getQrListForTable, getUserListForTable} from "../../actions/queryActions";
 import Spinner from "../common/Spinner";
