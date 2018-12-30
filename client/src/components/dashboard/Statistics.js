@@ -24,18 +24,27 @@ class Statistics extends Component {
             qrContent = <Spinner/>
         } else {
 
-            const columns = [{
-                Header: 'Type',
-                accessor: 'type'
-            }, {
-                Header: 'Has been scanned',
-                accessor: 'is_generated',
-                Cell: props => <span>{props.value ? 'Yes' : 'No'}</span>
-            }, {
-                id: 'is_used',
-                Header: 'Is Used',
-                accessor: d => d.is_used
-            }];
+            const columns = [
+
+                    {
+                        Header: 'Generated Qr List',
+                        columns: [
+                            {
+                                Header: 'Type',
+                                accessor: 'type'
+                            }, {
+                                Header: 'Has been scanned',
+                                accessor: 'is_generated',
+                                Cell: props => <span>{props.value ? 'Yes' : 'No'}</span>
+                            }, {
+                                id: 'is_used',
+                                Header: 'Is Used',
+                                Cell: props => <span>{props.value ? 'Yes' : 'No'}</span>
+                            }
+                        ]
+                    }
+                ]
+            ;
 
 
             qrContent = (
@@ -55,16 +64,24 @@ class Statistics extends Component {
 
             const columns = [
                 {
-                    Header: 'Name',
-                    accessor: 'name'
-                },
-                {
-                    Header: 'Phone',
-                    accessor: 'phone'
-                }, {
-                    Header: 'Email',
-                    accessor: 'email',
-                },
+
+                    Header: 'Subscribed user list',
+                    columns: [
+
+                        {
+                            Header: 'Name',
+                            accessor: 'name'
+                        },
+                        {
+                            Header: 'Phone',
+                            accessor: 'phone'
+                        }, {
+                            Header: 'Email',
+                            accessor: 'email',
+                        }
+
+                    ]
+                }
             ];
 
             const subColumns = [
