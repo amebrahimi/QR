@@ -120,7 +120,7 @@ String.random = function (length) {
 
 const generateQrCode = async (amount, type, expireDate, maxUse) => {
 
-    const url = 'http://192.168.1.101:3000';
+    const url = 'https://vp.mrclover.tk';
     const salt = await bcrypt.genSalt(10);
 
     if (!fs.existsSync(path.join(__dirname, `../../generated_qrs/${type}`))) {
